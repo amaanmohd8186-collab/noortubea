@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isOwner(userId);
+      allow delete: if false;
+
+      // Subcollections
+      match /followers/{followerId} {
+        allow read, write: if isAuthenticated();
+      }
+      match /following/{followingId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    // --- Posts Collection ---
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (request.auth.uid == resource.data.authorId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+
+      // Subcollections
+      match /reactions/{userId} {
+        allow read, write: if isAuthenticated();
+      }
+      match /comments/{commentId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    // --- Communities Collection ---
+    match /communities/{communityId} {
+      allow read, write: if isAuthenticated();
+
+      match /members/{userId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    // --- Q&A Collection ---
+    match /qa/{qaId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+
+      match /answers/{answerId} {
+        allow read: if isAuthenticated();
+        // Scholar answers creation restricted in security rules to roles with 'scholar' or 'admin'
+        allow create: if isAuthenticated() && (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'scholar' || 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        );
+        allow update, delete: if isAuthenticated() && (
+          request.auth.uid == resource.data.authorId || 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        );
+      }
+    }
+
+    // --- Chatrooms collection ---
+    match /chats/{chatId} {
+      allow read, write: if isAuthenticated() && (request.auth.uid in resource.data.participants || request.auth.uid in request.resource.data.participants);
+
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    // --- Reels Collection ---
+    match /reels/{reelId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == resource.data.authorId || 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+
+      match /comments/{commentId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    // --- Notifications Collection ---
+    match /notifications/{notificationId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // --- Verification Applications ---
+    match /verifications/{uid} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // --- Moderation Reports ---
+    match /reports/{reportId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}

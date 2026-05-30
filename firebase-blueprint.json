@@ -1,0 +1,196 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile in Ummah Connect",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Auth UID" },
+        "name": { "type": "string", "description": "Display Name" },
+        "username": { "type": "string", "description": "Unspaced handler name" },
+        "email": { "type": "string", "description": "Primary login email" },
+        "photoUrl": { "type": "string", "description": "Profile picture URL" },
+        "bio": { "type": "string", "description": "Spiritual biography" },
+        "role": { "type": "string", "enum": ["user", "scholar", "admin"], "description": "Application rank" },
+        "contributionScore": { "type": "number", "description": "Spiritual points score" },
+        "followersCount": { "type": "number", "description": "Number of other users following this account" },
+        "followingCount": { "type": "number", "description": "Number of accounts followed by this user" },
+        "isVerified": { "type": "boolean", "description": "Truth verification flag" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account registration timestamp" }
+      },
+      "required": ["uid", "name", "username", "email", "role", "contributionScore", "followersCount", "followingCount"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Theological reminder or Quran translation reference shared on feed",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Primary key ID" },
+        "authorId": { "type": "string", "description": "UID of posting user" },
+        "authorName": { "type": "string", "description": "Metadata author name" },
+        "authorPhotoUrl": { "type": "string", "description": "Metadata portrait" },
+        "authorRole": { "type": "string", "enum": ["user", "scholar", "admin"], "description": "Author's title at post instantiation" },
+        "isAuthorVerified": { "type": "boolean", "description": "Checks if verified when posted" },
+        "type": { "type": "string", "description": "Category selection (quran_reflection | hadith_discussion | dua | daily_reminder | article)" },
+        "textContent": { "type": "string", "description": "Text body explanation" },
+        "arabicContent": { "type": "string", "description": "Arabic scripture context" },
+        "referenceText": { "type": "string", "description": "Source citation text (e.g. Surah 2:152)" },
+        "tags": { "type": "array", "description": "Search indexes list" },
+        "ameenCount": { "type": "number", "description": "Total Ameen reaction index" },
+        "subhanAllahCount": { "type": "number", "description": "Total SubhanAllah reaction index" },
+        "allahuAkbarCount": { "type": "number", "description": "Total AllahuAkbar reaction index" },
+        "benefitedCount": { "type": "number", "description": "Total Benefited reaction index" },
+        "jazakAllahCount": { "type": "number", "description": "Total JazakAllah reaction index" },
+        "communityId": { "type": "string", "description": "Optional community circle ID pointer" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp" },
+        "status": { "type": "string", "enum": ["active", "under_review"], "description": "Review state" }
+      },
+      "required": ["id", "authorId", "authorName", "type", "textContent", "createdAt", "status"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "Feed post response discussion comment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique key" },
+        "authorId": { "type": "string", "description": "Commenter's author UID" },
+        "authorName": { "type": "string", "description": "Primary display label" },
+        "authorPhotoUrl": { "type": "string", "description": "Display portrait" },
+        "authorRole": { "type": "string", "enum": ["user", "scholar", "admin"], "description": "Commenter's rank" },
+        "content": { "type": "string", "description": "Text body" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp" }
+      },
+      "required": ["id", "authorId", "authorName", "content", "createdAt"]
+    },
+    "Follower": {
+      "title": "Follower Relation",
+      "description": "Maps who is following whom",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "UID of the user following" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Follow initiation" }
+      },
+      "required": ["uid", "timestamp"]
+    },
+    "Community": {
+      "title": "Community",
+      "description": "A theological circle or discussion club",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Community primary ID identifier" },
+        "name": { "type": "string", "description": "Title name" },
+        "description": { "type": "string", "description": "Introductory scope" },
+        "membersCount": { "type": "number", "description": "Cached member counts" },
+        "tags": { "type": "array", "description": "Niches" },
+        "createdBy": { "type": "string", "description": "UID of creator" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "description", "membersCount", "createdBy", "createdAt"]
+    },
+    "Message": {
+      "title": "Direct Message",
+      "description": "Raw chat message log in active discussions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Event unique identifier" },
+        "senderId": { "type": "string", "description": "Message author UID" },
+        "senderName": { "type": "string", "description": "Primary label name" },
+        "senderRole": { "type": "string", "description": "Scholar / user / admin title" },
+        "senderAvatar": { "type": "string", "description": "Avatar url for visual indexing" },
+        "content": { "type": "string", "description": "Raw text body written" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Precise message sending timestamp" },
+        "isRead": { "type": "boolean", "description": "Read receipt status toggle" }
+      },
+      "required": ["id", "senderId", "senderName", "content", "createdAt", "isRead"]
+    },
+    "ChatRoom": {
+      "title": "Chat Room",
+      "description": "Chat channel or private DM thread mapping",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Room key" },
+        "name": { "type": "string", "description": "Visual header name" },
+        "isGroup": { "type": "boolean", "description": "True represents community group room chat" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "participants": { "type": "array", "description": "UIDs of members allowed on the chat" }
+      },
+      "required": ["id", "name", "isGroup", "participants"]
+    },
+    "ScholarVerification": {
+      "title": "Scholar Verification",
+      "description": "Application submitted for official theological scholar rank",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "institutes": { "type": "string", "description": "Degree or Madrasa context" },
+        "certificates": { "type": "string", "description": "Ijazah or academic credential verification references" },
+        "notes": { "type": "string", "description": "Spiritual goals statements" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "institutes", "certificates", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Directory of registered members of the platform"
+    },
+    "/users/{userId}/followers/{followerId}": {
+      "schema": "Follower",
+      "description": "Index of accounts following this profile document"
+    },
+    "/users/{userId}/following/{followingId}": {
+      "schema": "Follower",
+      "description": "Index of other accounts followed by this profile document"
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Theological reminders timeline feed documents"
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Individual feedback commentaries on active posts"
+    },
+    "/posts/{postId}/reactions/{userId}": {
+      "schema": {
+        "title": "Reaction Log",
+        "type": "object",
+        "properties": {
+          "reactions": { "type": "array", "description": "Arr of reaction keys" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      },
+      "description": "Custom transaction reaction tracking maps for double-click protection"
+    },
+    "/communities/{communityId}": {
+      "schema": "Community",
+      "description": "Spiritual study circles on the platform"
+    },
+    "/communities/{communityId}/members/{memberId}": {
+      "schema": {
+        "title": "Community Member",
+        "type": "object",
+        "properties": {
+          "uid": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "description": "Record of membership in particular communities"
+    },
+    "/chats/{chatId}": {
+      "schema": "ChatRoom",
+      "description": "Unified text chat channels register"
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Live text streams for chat participants"
+    },
+    "/scholar_verifications/{userId}": {
+      "schema": "ScholarVerification",
+      "description": "Official requests for spiritual scholar verification processing"
+    }
+  }
+}

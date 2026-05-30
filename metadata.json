@@ -1,0 +1,7 @@
+{
+  "name": "NoorTube",
+  "description": "NoorTube - Premium modern Islamic social media and video sharing platform. Includes reels, verified scholarly lectures, automated AI content moderation, prayer times, Qibla tools, and an AI Islamic assistant.",
+  "icon": "/app-logo.png",
+  "requestFramePermissions": ["geolocation", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
